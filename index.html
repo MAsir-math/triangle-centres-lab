@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TRIANGLE CENTRES LAB｜三角形的四心｜馬Sir教室 中四</title>
+<meta name="description" content="HKDSE 中四必修數學：三角形的四心藍圖儀表板（外心、內心、形心／重心、垂心），可拖動頂點、顯示作圖線及自我檢測。">
+<style>
+
+:root{
+  --paper:#ebe7df; --paper2:#f4f1ea; --ink:#1c1f24; --muted:#5a6270;
+  --line:#c8c4ba; --line-soft:#ddd9d0; --panel:#f7f4ed; --panel-edge:#b8b3a8;
+  --cyan:#0ea5c6; --cyan-glow:rgba(14,165,198,.28); --cyan-soft:#e6f7fb;
+  --cO:#D55E00; --cI:#0072B2; --cG:#009E73; --cH:#B4467F; --cE:#333;
+  --shadow:0 2px 0 rgba(0,0,0,.04), 0 10px 28px rgba(28,31,36,.06);
+  --font-ui:"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  --font-tech:"DIN Alternate","Arial Narrow","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; font-family:var(--font-ui); color:var(--ink); line-height:1.55;
+  background:
+    linear-gradient(rgba(180,175,165,.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,175,165,.18) 1px, transparent 1px),
+    radial-gradient(ellipse at 20% 0%, #f2efe8 0%, var(--paper) 55%, #e3dfd5 100%);
+  background-size:24px 24px, 24px 24px, 100% 100%;
+  background-attachment:fixed;
+}
+:focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
+button{font:inherit}
+
+.lab{max-width:1180px;margin:0 auto;padding:12px 12px 40px}
+
+/* ===== HEADER STRIP ===== */
+.hdr{
+  display:grid; grid-template-columns:auto 1fr auto; gap:10px 16px; align-items:center;
+  border:1px solid var(--panel-edge); background:var(--panel); padding:10px 14px;
+  box-shadow:var(--shadow); margin-bottom:10px; position:relative;
+}
+.hdr::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--cyan);
+}
+.brand{display:flex; align-items:center; gap:10px}
+.brand-mark{
+  width:36px; height:36px; border:1.5px solid var(--ink); background:#fff;
+  display:grid; place-items:center; font:700 11px/1 var(--font-tech); letter-spacing:.04em;
+}
+.brand h1{margin:0; font-size:1.05rem; letter-spacing:.04em; font-weight:800}
+.brand h1 .en{display:block; font-family:var(--font-tech); font-size:.72rem; letter-spacing:.14em; color:var(--muted); font-weight:700}
+.meta{display:flex; flex-wrap:wrap; gap:6px 10px; justify-content:center; font-family:var(--font-tech); font-size:.7rem; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+.meta span{border:1px solid var(--line); padding:3px 8px; background:#fff}
+.meta .live{color:#0a7a3e; border-color:#9dceb0; background:#eef8f1}
+.hdr-right{display:flex; flex-direction:column; align-items:flex-end; gap:4px}
+.hdr-right .school{font-size:.82rem; font-weight:700}
+.hdr-right .badge{font-family:var(--font-tech); font-size:.68rem; letter-spacing:.1em; color:var(--cyan); border:1px solid var(--cyan); padding:2px 7px}
+.hdr .newtab{display:none; font-size:.78rem; color:var(--cyan); text-decoration:none; border:1px solid var(--cyan); padding:4px 8px}
+.hdr .newtab.show{display:inline-block}
+
+.toc{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px}
+.toc a{
+  text-decoration:none; color:var(--ink); background:#fff; border:1px solid var(--panel-edge);
+  padding:5px 10px; font-family:var(--font-tech); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+}
+.toc a:hover{border-color:var(--cyan); color:var(--cyan)}
+
+.motto{
+  border:1px dashed var(--panel-edge); background:rgba(255,255,255,.55); padding:8px 12px;
+  margin:0 0 10px; font-size:.92rem; color:var(--muted);
+}
+.motto strong{color:var(--ink)}
+
+/* ===== DASHBOARD GRID ===== */
+.dash{
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);
+  grid-template-rows:auto auto auto;
+  gap:8px;
+  margin-bottom:12px;
+}
+.panel{
+  background:var(--panel); border:1px solid var(--panel-edge); box-shadow:var(--shadow);
+  position:relative; overflow:hidden;
+}
+.panel > .pt{
+  margin:0; padding:6px 10px; font-family:var(--font-tech); font-size:.68rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--line-soft);
+  background:linear-gradient(#faf8f3,#f0ece4); display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.panel > .pt .tag{color:var(--cyan); letter-spacing:.1em}
+.panel > .pb{padding:10px}
+
+.panel-hero{grid-row:1 / span 3; display:flex; flex-direction:column; min-height:0}
+.panel-hero .pb{padding:0; flex:1; display:flex; flex-direction:column}
+.svg-wrap{background:#fbfaf6; border-top:1px solid var(--line-soft); flex:1; position:relative}
+.svg-wrap::after{
+  content:""; pointer-events:none; position:absolute; inset:0;
+  box-shadow:inset 0 0 0 1px rgba(14,165,198,.12), inset 0 0 40px rgba(14,165,198,.04);
+}
+svg#board{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+svg .lbl{paint-order:stroke;stroke:#fff;stroke-linejoin:round;font-weight:700;font-family:inherit}
+svg .handle{cursor:grab;outline:none}
+svg .handle:focus .ring{stroke:var(--cyan);stroke-opacity:1}
+svg .handle .ring{fill:none;stroke-opacity:0}
+svg .pulse-ring{animation:pulse 2.2s ease-out infinite; opacity:.55}
+@keyframes pulse{0%{opacity:.55; stroke-width:1.2} 70%{opacity:0; stroke-width:0.4} 100%{opacity:0}}
+
+.hint{font-size:.78rem;color:var(--muted);margin:0;padding:7px 10px;border-top:1px solid var(--line-soft);background:#f3f0e8}
+
+/* tabs as mode selector strip inside hero */
+.modebar{
+  display:flex; flex-wrap:wrap; gap:4px; padding:8px 8px 6px; border-bottom:1px solid var(--line-soft); background:#f3f0e8;
+}
+.tab{
+  min-height:36px; border:1px solid var(--line); background:#fff; padding:5px 10px; cursor:pointer;
+  color:var(--ink); font-weight:700; font-size:.82rem; display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--font-ui); transition:box-shadow .2s, border-color .2s, background .2s;
+}
+.tab .sym{font-size:.95rem}
+.tab[data-mode=O] .sym{color:var(--cO)} .tab[data-mode=I] .sym{color:var(--cI)}
+.tab[data-mode=G] .sym{color:var(--cG)} .tab[data-mode=H] .sym{color:var(--cH)}
+.tab[aria-selected=true]{color:#fff; border-color:transparent; box-shadow:0 0 0 2px var(--cyan-glow)}
+.tab[aria-selected=true] .sym{color:#fff}
+.tab[data-mode=O][aria-selected=true]{background:var(--cO)}
+.tab[data-mode=I][aria-selected=true]{background:var(--cI)}
+.tab[data-mode=G][aria-selected=true]{background:var(--cG)}
+.tab[data-mode=H][aria-selected=true]{background:var(--cH)}
+.tab[data-mode=ALL][aria-selected=true]{background:#2d3a4f}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--line-soft);background:#faf8f3}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.toolbar .lbl{font-family:var(--font-tech);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.btn{min-height:32px;border:1px solid var(--line);background:#fff;padding:4px 9px;cursor:pointer;color:var(--ink);font-size:.85rem}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.tgl{display:inline-flex;align-items:center;gap:5px;min-height:32px;border:1px solid var(--line);padding:3px 8px;background:#fff;cursor:pointer;font-size:.82rem;user-select:none}
+.tgl input{width:16px;height:16px;margin:0;accent-color:var(--cyan)}
+.tgl.enrich{border-style:dashed}
+.tag{display:inline-block;font-size:.65rem;padding:1px 5px;border-radius:2px;background:#fff1d6;color:#8a5300;border:1px solid #f0d7a8;margin-left:2px;font-family:var(--font-tech);letter-spacing:.04em}
+
+/* side panels */
+.panel-status .status{margin:0; border:0; border-radius:0; padding:0; background:transparent; font-size:.9rem}
+.status.warn{color:#7d1f2c}
+.status .loc{display:inline-block;margin:2px 10px 0 0;white-space:nowrap}
+.status .loc b{font-weight:700}
+.loc.O b{color:var(--cO)} .loc.I b{color:var(--cI)} .loc.G b{color:var(--cG)} .loc.H b{color:var(--cH)}
+
+.concept{border:0; border-radius:0; padding:0; background:transparent}
+.concept h3{margin:0 0 6px; font-size:.98rem}
+.concept dl{margin:0}
+.concept dt{font-family:var(--font-tech); font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:8px}
+.concept dd{margin:2px 0 0; font-size:.9rem}
+.concept .pos{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.88rem}
+#lab[data-mode=O] .panel-concept{box-shadow:inset 3px 0 0 var(--cO), var(--shadow)}
+#lab[data-mode=I] .panel-concept{box-shadow:inset 3px 0 0 var(--cI), var(--shadow)}
+#lab[data-mode=G] .panel-concept{box-shadow:inset 3px 0 0 var(--cG), var(--shadow)}
+#lab[data-mode=H] .panel-concept{box-shadow:inset 3px 0 0 var(--cH), var(--shadow)}
+#lab[data-mode=ALL] .panel-concept{box-shadow:inset 3px 0 0 #2d3a4f, var(--shadow)}
+#lab[data-mode=O] .panel-hero .pt .tag{color:var(--cO)}
+#lab[data-mode=I] .panel-hero .pt .tag{color:var(--cI)}
+#lab[data-mode=G] .panel-hero .pt .tag{color:var(--cG)}
+#lab[data-mode=H] .panel-hero .pt .tag{color:var(--cH)}
+
+.readout{border:0;padding:0;background:transparent;font-variant-numeric:tabular-nums}
+.readout table{border-collapse:collapse;width:100%;font-size:.88rem}
+.readout td{padding:3px 2px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.readout td:last-child{text-align:right;font-weight:600}
+.readout .eq{color:var(--cyan);font-weight:700}
+.readout .note{font-size:.8rem;color:var(--muted);margin-top:6px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.8rem;color:var(--muted);padding:0}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend svg{flex-shrink:0}
+
+.side-stack{display:contents}
+@media (max-width:940px){
+  .dash{grid-template-columns:1fr; grid-template-rows:auto}
+  .panel-hero{grid-row:auto}
+  .side-stack{display:grid; gap:8px}
+}
+
+/* lower sections */
+.section{
+  background:var(--panel); border:1px solid var(--panel-edge); box-shadow:var(--shadow);
+  margin-bottom:10px;
+}
+.section > .pt{
+  margin:0; padding:7px 12px; font-family:var(--font-tech); font-size:.72rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--line-soft);
+  background:linear-gradient(#faf8f3,#f0ece4);
+}
+.section > .pb{padding:12px}
+.cmp{width:100%;border-collapse:collapse;font-size:.88rem}
+.cmp th,.cmp td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+.cmp th{background:#efebe3; font-family:var(--font-tech); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase}
+.cmp td.c{font-weight:700;white-space:nowrap}
+.cmp-wrap{overflow-x:auto}
+.callout{border:1px solid #e0c98a; background:#fff8e8; padding:9px 12px; margin-top:10px; font-size:.9rem}
+
+.q{border-top:1px solid var(--line-soft);padding-top:12px;margin-top:12px}
+.q:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.q h3{margin:0 0 8px;font-size:.95rem;font-weight:600}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+@media (max-width:640px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);padding:8px 10px;cursor:pointer;min-height:42px;font-size:.9rem}
+.opt input{width:18px;height:18px;margin:0;flex-shrink:0;accent-color:var(--cyan)}
+.opt.right{background:#e8f6ef;border-color:#7cc0a9}
+.opt.wrong{background:#fdecee;border-color:#e9a0aa}
+.numrow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:8px 0}
+.numrow input{width:96px;min-height:38px;padding:6px 8px;border:1px solid var(--line);font:inherit;background:#fff}
+.check-btn{min-height:38px;border:0;background:var(--cyan);color:#fff;padding:7px 14px;cursor:pointer;font-weight:700}
+.feedback{margin-top:8px;font-size:.9rem}
+.feedback.ok,.feedback.no{padding:8px 12px}
+.feedback.ok{background:#e8f6ef;color:#14513f;border:1px solid #b7d9cf}
+.feedback.no{background:#fdecee;color:#7d1f2c;border:1px solid #f3c4ca}
+.score{font-weight:700;margin:12px 0 0;font-family:var(--font-tech);letter-spacing:.04em}
+
+footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:14px;font-family:var(--font-tech);letter-spacing:.06em}
+@media (max-width:640px){
+  .hdr{grid-template-columns:1fr; gap:8px}
+  .hdr-right{align-items:flex-start}
+  .meta{justify-content:flex-start}
+  .tab{padding:5px 8px;flex:1 1 auto;justify-content:center;font-size:.78rem}
+  .brand h1{font-size:.95rem}
+}
+
+</style>
+</head>
+<body>
+<div class="lab" id="lab" data-mode="O">
+  <header class="hdr">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">△</div>
+      <h1><span class="en">TRIANGLE CENTRES LAB</span>三角形的四心</h1>
+    </div>
+    <div class="meta" aria-label="狀態">
+      <span>SYS · LAB-4C</span>
+      <span>REV 1.0</span>
+      <span class="live">● LIVE</span>
+      <span>FORM 4 · DSE</span>
+    </div>
+    <div class="hdr-right">
+      <div class="school">馬Sir教室</div>
+      <div class="badge">HKDSE · 必修</div>
+      <a class="newtab" id="newTab" href="#" target="_blank" rel="noopener">↗ 新分頁開啟</a>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="章節導覽">
+    <a href="#explorer">01 · Explorer</a>
+    <a href="#compare">02 · Compare</a>
+    <a href="#quiz">03 · Self-check</a>
+  </nav>
+
+  <p class="motto">記憶口訣：<strong>外垂、內角、形中、垂高</strong>——外心用垂直平分線、內心用角平分線、形心用中線、垂心用高線。拖動頂點 A、B、C，即時觀察四心位置。</p>
+
+  <section id="explorer" aria-labelledby="exTitle">
+    <div class="dash">
+      <div class="panel panel-hero">
+        <h2 class="pt" id="exTitle">Canvas · 互動作圖 <span class="tag" id="modeTag">O · 外心</span></h2>
+        <div class="pb">
+          <div class="modebar" role="tablist" aria-label="選擇要顯示的心">
+            <button type="button" class="tab" role="tab" data-mode="O" aria-selected="true" aria-controls="sidePanel"><span class="sym" aria-hidden="true">●</span>外心 O</button>
+            <button type="button" class="tab" role="tab" data-mode="I" aria-selected="false" aria-controls="sidePanel" tabindex="-1"><span class="sym" aria-hidden="true">■</span>內心 I</button>
+            <button type="button" class="tab" role="tab" data-mode="G" aria-selected="false" aria-controls="sidePanel" tabindex="-1"><span class="sym" aria-hidden="true">▲</span>形心（重心）G</button>
+            <button type="button" class="tab" role="tab" data-mode="H" aria-selected="false" aria-controls="sidePanel" tabindex="-1"><span class="sym" aria-hidden="true">◆</span>垂心 H</button>
+            <button type="button" class="tab" role="tab" data-mode="ALL" aria-selected="false" aria-controls="sidePanel" tabindex="-1">全部顯示</button>
+          </div>
+          <div class="toolbar">
+            <div class="grp" role="group" aria-label="預設三角形">
+              <span class="lbl">Preset</span>
+              <button type="button" class="btn preset" data-preset="acute">銳角</button>
+              <button type="button" class="btn preset" data-preset="right">直角</button>
+              <button type="button" class="btn preset" data-preset="obtuse">鈍角</button>
+              <button type="button" class="btn preset" data-preset="iso">等腰</button>
+              <button type="button" class="btn preset" data-preset="equi">等邊</button>
+            </div>
+            <div class="grp" role="group" aria-label="顯示選項">
+              <label class="tgl"><input type="checkbox" id="optGrid" checked> 方格</label>
+              <label class="tgl"><input type="checkbox" id="optSnap"> 吸附格點</label>
+              <label class="tgl"><input type="checkbox" id="optCoord"> 坐標</label>
+              <label class="tgl enrich" title="延伸內容"><input type="checkbox" id="optEuler"> 歐拉線 <span class="tag">延伸</span></label>
+            </div>
+          </div>
+          <div class="svg-wrap">
+            <svg id="board" viewBox="0 0 800 600" role="img" aria-label="可拖動頂點的三角形作圖區">
+              <g id="layerGrid"></g>
+              <g id="layerDraw"></g>
+              <g id="layerHandles"></g>
+            </svg>
+          </div>
+          <p class="hint">拖動頂點 A、B、C（滑鼠／觸控）；或 Tab 選取後用方向鍵移動（Shift = 大步）。</p>
+        </div>
+      </div>
+
+      <div class="side-stack" id="sidePanel" role="tabpanel">
+        <div class="panel panel-status">
+          <h3 class="pt">Status · 即時狀態</h3>
+          <div class="pb"><div class="status" id="status" role="status" aria-live="polite"></div></div>
+        </div>
+        <div class="panel panel-concept">
+          <h3 class="pt">Concept · 概念卡</h3>
+          <div class="pb"><div class="concept" id="concept"></div></div>
+        </div>
+        <div class="panel panel-readout">
+          <h3 class="pt">Readout · 即時量度</h3>
+          <div class="pb"><div class="readout" id="readout"></div></div>
+        </div>
+        <div class="panel panel-legend">
+          <h3 class="pt">Legend · 圖例</h3>
+          <div class="pb"><div class="legend" id="legend" aria-label="圖例"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="compare">
+    <h2 class="pt">02 · Compare · 四心比較表</h2>
+    <div class="pb">
+      <div class="cmp-wrap">
+      <table class="cmp">
+        <thead><tr><th>心</th><th>由哪三條線相交</th><th>主要性質</th><th>銳角 △</th><th>直角 △</th><th>鈍角 △</th></tr></thead>
+        <tbody>
+          <tr><td class="c" style="color:var(--cO)">● 外心 O<br><small>circumcentre</small></td><td>三邊的<b>垂直平分線</b><br><small>(perpendicular bisectors)</small></td><td>OA = OB = OC<br>（與三個<b>頂點</b>等距）<br>是外接圓圓心</td><td>形內</td><td>斜邊中點</td><td>形外</td></tr>
+          <tr><td class="c" style="color:var(--cI)">■ 內心 I<br><small>incentre</small></td><td>三個內角的<b>角平分線</b><br><small>(angle bisectors)</small></td><td>與三條<b>邊</b>的垂直距離相等<br>是內切圓圓心</td><td>形內</td><td>形內</td><td>形內</td></tr>
+          <tr><td class="c" style="color:var(--cG)">▲ 形心（重心）G<br><small>centroid</small></td><td>三條<b>中線</b><br><small>(medians)</small></td><td>把每條中線分成 <b>2 : 1</b>（由頂點量起）<br>G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)</td><td>形內</td><td>形內</td><td>形內</td></tr>
+          <tr><td class="c" style="color:var(--cH)">◆ 垂心 H<br><small>orthocentre</small></td><td>三條<b>高線</b><br><small>(altitudes)</small></td><td>AH ⊥ BC，BH ⊥ CA，CH ⊥ AB</td><td>形內</td><td>直角頂點</td><td>形外</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="callout"><strong>延伸：歐拉線（Euler line）</strong>——非等邊三角形中，外心 O、形心 G、垂心 H 必定共線，而且 OG : GH = 1 : 2。內心一般不在歐拉線上。等腰三角形的四心都在對稱軸上；<strong>等邊三角形的四心重合</strong>。</div>
+    </div>
+  </section>
+
+  <section class="section" id="quiz">
+    <h2 class="pt">03 · Self-check · 自我檢測（不記錄個人資料）</h2>
+    <div class="pb">
+      <div id="quizBox"></div>
+      <div class="score" id="score" aria-live="polite"></div>
+      <button type="button" class="btn" id="quizReset" style="margin-top:8px">重新作答</button>
+    </div>
+  </section>
+
+  <footer>馬Sir教室 · TRIANGLE CENTRES LAB · HKDSE 必修 · 單一檔案 · 可離線 · 不收集個人資料</footer>
+</div>
+
+<script id="geo-lib">
+/* ===== 幾何計算（純函數，可在 Node 中測試） ===== */
+var Geo = (function(){
+  "use strict";
+  function P(x,y){return {x:x,y:y};}
+  function sub(p,q){return P(p.x-q.x,p.y-q.y);}
+  function add(p,q){return P(p.x+q.x,p.y+q.y);}
+  function mul(p,k){return P(p.x*k,p.y*k);}
+  function dot(p,q){return p.x*q.x+p.y*q.y;}
+  function cross(p,q){return p.x*q.y-p.y*q.x;}
+  function len(p){return Math.hypot(p.x,p.y);}
+  function dist(p,q){return Math.hypot(p.x-q.x,p.y-q.y);}
+  function mid(p,q){return P((p.x+q.x)/2,(p.y+q.y)/2);}
+  function unit(p){var l=len(p);return l>0?P(p.x/l,p.y/l):P(0,0);}
+  function perp(p){return P(-p.y,p.x);}
+
+  function circumcentre(A,B,C){
+    var d=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(d)<1e-12) return null;
+    var a2=A.x*A.x+A.y*A.y, b2=B.x*B.x+B.y*B.y, c2=C.x*C.x+C.y*C.y;
+    return P((a2*(B.y-C.y)+b2*(C.y-A.y)+c2*(A.y-B.y))/d,
+             (a2*(C.x-B.x)+b2*(A.x-C.x)+c2*(B.x-A.x))/d);
+  }
+  function incentre(A,B,C){
+    var a=dist(B,C), b=dist(C,A), c=dist(A,B), s=a+b+c;
+    if(s<=0) return null;
+    return P((a*A.x+b*B.x+c*C.x)/s,(a*A.y+b*B.y+c*C.y)/s);
+  }
+  function centroid(A,B,C){return P((A.x+B.x+C.x)/3,(A.y+B.y+C.y)/3);}
+  function orthocentre(A,B,C){            // H = A + B + C − 2O（向量）
+    var O=circumcentre(A,B,C); if(!O) return null;
+    return P(A.x+B.x+C.x-2*O.x, A.y+B.y+C.y-2*O.y);
+  }
+  // 兩直線相交：p + t·u 與 q + s·v
+  function intersect(p,u,q,v){
+    var d=cross(u,v); if(Math.abs(d)<1e-12) return null;
+    var t=cross(sub(q,p),v)/d; return add(p,mul(u,t));
+  }
+  // 用兩條高線相交（獨立方法，用於驗證）
+  function orthocentreByAltitudes(A,B,C){
+    return intersect(A,perp(sub(C,B)),B,perp(sub(A,C)));
+  }
+  // P 在直線 UV 上的垂足，t 為參數（0 → U，1 → V）
+  function foot(Pt,U,V){
+    var d=sub(V,U), L2=dot(d,d); if(L2===0) return {pt:P(U.x,U.y),t:0};
+    var t=dot(sub(Pt,U),d)/L2; return {pt:add(U,mul(d,t)),t:t};
+  }
+  function lineDist(Pt,U,V){var d=sub(V,U),L=len(d);return L>0?Math.abs(cross(d,sub(Pt,U)))/L:dist(Pt,U);}
+  function area2(A,B,C){return cross(sub(B,A),sub(C,A));}
+  function angleAt(V,P1,P2){
+    var u=sub(P1,V), w=sub(P2,V), lu=len(u), lw=len(w);
+    if(lu===0||lw===0) return 0;
+    var c=Math.max(-1,Math.min(1,dot(u,w)/(lu*lw)));
+    return Math.acos(c)*180/Math.PI;
+  }
+  // 重心坐標（barycentric）判斷位置
+  function locate(Pt,A,B,C,eps){
+    eps = eps==null ? 1e-6 : eps;
+    var D=area2(A,B,C); if(Math.abs(D)<1e-12) return "degenerate";
+    var l1=area2(Pt,B,C)/D, l2=area2(A,Pt,C)/D, l3=area2(A,B,Pt)/D;
+    var m=Math.min(l1,l2,l3);
+    if(m>eps) return "inside";
+    if(m>=-eps) return "boundary";
+    return "outside";
+  }
+  function isDegenerate(A,B,C){
+    var a=dist(B,C), b=dist(C,A), c=dist(A,B), M=Math.max(a,b,c), m=Math.min(a,b,c);
+    if(!(isFinite(a)&&isFinite(b)&&isFinite(c))) return true;
+    if(m<0.25) return true;                       // 兩頂點太接近
+    return Math.abs(area2(A,B,C))/(M*M) < 0.03;   // 最長邊上的高 < 3% 最長邊：接近共線
+  }
+  var NAMES=["A","B","C"];
+  function analyze(A,B,C,opt){
+    opt=opt||{};
+    var rightTol = opt.rightTol==null ? 0.5 : opt.rightTol;   // 直角容許誤差（度）
+    var V=[A,B,C];
+    var r={A:A,B:B,C:C,degenerate:isDegenerate(A,B,C)};
+    r.a=dist(B,C); r.b=dist(C,A); r.c=dist(A,B);
+    r.angles=[angleAt(A,B,C),angleAt(B,C,A),angleAt(C,A,B)];
+    if(r.degenerate) return r;
+    var maxI=0; for(var i=1;i<3;i++) if(r.angles[i]>r.angles[maxI]) maxI=i;
+    r.maxIdx=maxI; r.maxName=NAMES[maxI]; r.maxAngle=r.angles[maxI];
+    r.type = Math.abs(r.maxAngle-90)<=rightTol ? "right" : (r.maxAngle>90 ? "obtuse" : "acute");
+    var sides=[r.a,r.b,r.c], M=Math.max(r.a,r.b,r.c), rel=0.01;
+    function eq(x,y){return Math.abs(x-y)<=rel*M;}
+    r.equilateral = eq(r.a,r.b)&&eq(r.b,r.c)&&eq(r.a,r.c);
+    r.isosceles = r.equilateral || eq(r.a,r.b)||eq(r.b,r.c)||eq(r.a,r.c);
+    r.area=Math.abs(area2(A,B,C))/2;
+    r.O=circumcentre(A,B,C); r.I=incentre(A,B,C); r.G=centroid(A,B,C); r.H=orthocentre(A,B,C);
+    r.R=dist(r.O,A); r.inr=2*r.area/(r.a+r.b+r.c);
+    // 中點 D (BC)、E (CA)、F (AB)
+    r.mid=[mid(B,C),mid(C,A),mid(A,B)];
+    // 角平分線與對邊交點：BD/DC = AB/AC
+    r.bisFoot=[ add(B,mul(sub(C,B),r.c/(r.b+r.c))),
+                add(C,mul(sub(A,C),r.a/(r.c+r.a))),
+                add(A,mul(sub(B,A),r.b/(r.a+r.b))) ];
+    // 高線垂足（在對邊所在直線上）
+    r.altFoot=[foot(A,B,C),foot(B,C,A),foot(C,A,B)];
+    // 內心到三邊的垂足
+    r.inFoot=[foot(r.I,B,C).pt,foot(r.I,C,A).pt,foot(r.I,A,B).pt];
+    r.inDist=[lineDist(r.I,B,C),lineDist(r.I,C,A),lineDist(r.I,A,B)];
+    r.circDist=[dist(r.O,A),dist(r.O,B),dist(r.O,C)];
+    r.medRatio=[0,1,2].map(function(k){var g=dist(V[k],r.G), d=dist(r.G,r.mid[k]);return {vg:g,gd:d,ratio:g/d};});
+    var eps=1e-6*M;
+    r.loc={O:locate(r.O,A,B,C,1e-4),I:locate(r.I,A,B,C,1e-4),G:locate(r.G,A,B,C,1e-4),H:locate(r.H,A,B,C,1e-4)};
+    r.OG=dist(r.O,r.G); r.GH=dist(r.G,r.H); r.OH=dist(r.O,r.H);
+    // 歐拉線共線檢查：cross(OG, OH) 應為 0
+    r.eulerCross = cross(sub(r.G,r.O),sub(r.H,r.O));
+    return r;
+  }
+  return {P:P,sub:sub,add:add,mul:mul,dot:dot,cross:cross,len:len,dist:dist,mid:mid,unit:unit,perp:perp,
+    circumcentre:circumcentre,incentre:incentre,centroid:centroid,orthocentre:orthocentre,
+    orthocentreByAltitudes:orthocentreByAltitudes,intersect:intersect,foot:foot,lineDist:lineDist,
+    area2:area2,angleAt:angleAt,locate:locate,isDegenerate:isDegenerate,analyze:analyze};
+})();
+if(typeof module!=="undefined") module.exports=Geo;
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var G=Geo, P=G.P;
+  /* ---------- 視窗 / 坐標 ---------- */
+  var VIEW={xmin:-4,xmax:16,ymin:-5,ymax:10};      // 20 × 15 單位
+  var S=800/(VIEW.xmax-VIEW.xmin);                   // 每單位 40px（viewBox 單位）
+  var COL={O:"#D55E00",I:"#0072B2",G:"#009E73",H:"#B4467F",E:"#333333",tri:"#1a2332",ext:"#7b8796"};
+  var NAME={O:"外心",I:"內心",G:"形心（重心）",H:"垂心"};
+  var PRESETS={
+    acute:[P(4,8.5),P(0,1),P(11,1)],
+    right:[P(2,8),P(10,1),P(2,1)],
+    obtuse:[P(3,5),P(0,2.5),P(9,2.5)],
+    iso:[P(6,9),P(3,1),P(9,1)],
+    equi:[P(6,1+4*Math.sqrt(3)),P(2,1),P(10,1)]
+  };
+  var state={pts:PRESETS.acute.map(function(p){return P(p.x,p.y);}),mode:"O",grid:true,snap:false,coord:false,euler:false,drag:-1};
+  var k=1; // 字體 / 線寬縮放（窄螢幕放大）
+
+  var svg=document.getElementById("board");
+  var LG=document.getElementById("layerGrid"), LD=document.getElementById("layerDraw"), LH=document.getElementById("layerHandles");
+  function sx(p){return (p.x-VIEW.xmin)*S;}
+  function sy(p){return (VIEW.ymax-p.y)*S;}
+  function scr(p){return {x:sx(p),y:sy(p)};}
+  function n2(v){return (Math.round(v*100)/100).toFixed(2);}
+  function n1(v){var r=Math.round(v*10)/10; if(Object.is(r,-0)) r=0; return r.toFixed(1);}
+  function f(v){return (Math.round(v*100)/100).toString();}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+  /* ---------- SVG 小工具（以螢幕坐標繪畫） ---------- */
+  function st(color,w,dash,extra){
+    var s=' stroke="'+color+'" stroke-width="'+(w*k).toFixed(2)+'" fill="none" stroke-linecap="round"';
+    if(dash) s+=' stroke-dasharray="'+dash.map(function(d){return (d*k).toFixed(1);}).join(" ")+'"';
+    return s+(extra||"");
+  }
+  function line(p,q,style){var a=scr(p),b=scr(q);return '<line x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'"'+style+'/>';}
+  function infLine(p,dir,style){var u=G.unit(dir);return line(G.add(p,G.mul(u,-80)),G.add(p,G.mul(u,80)),style);}
+  function circle(c,rWorld,style){var a=scr(c);return '<circle cx="'+a.x.toFixed(1)+'" cy="'+a.y.toFixed(1)+'" r="'+(rWorld*S).toFixed(1)+'"'+style+'/>';}
+  function text(p,str,color,dx,dy,size,anchor){
+    var a=scr(p);
+    return '<text class="lbl" x="'+(a.x+(dx||0)*k).toFixed(1)+'" y="'+(a.y+(dy||0)*k).toFixed(1)+'" fill="'+color+'" font-size="'+((size||16)*k).toFixed(1)+'" stroke-width="'+(4*k).toFixed(1)+'" text-anchor="'+(anchor||"middle")+'" dominant-baseline="middle">'+esc(str)+'</text>';
+  }
+  function sdir(d){return G.unit({x:d.x,y:-d.y});}   // 世界方向 → 螢幕方向
+  function rightMark(corner,d1,d2,color){
+    var c=scr(corner),u=sdir(d1),v=sdir(d2),s=10*k;
+    var p1={x:c.x+u.x*s,y:c.y+u.y*s},p2={x:p1.x+v.x*s,y:p1.y+v.y*s},p3={x:c.x+v.x*s,y:c.y+v.y*s};
+    return '<polyline points="'+[p1,p2,p3].map(function(p){return p.x.toFixed(1)+","+p.y.toFixed(1);}).join(" ")+'"'+st(color,1.6)+'/>';
+  }
+  // 在線段 pq 中間畫 n 條「等長」記號
+  function ticks(p,q,n,color){
+    var a=scr(p),b=scr(q),m={x:(a.x+b.x)/2,y:(a.y+b.y)/2},d=G.unit({x:b.x-a.x,y:b.y-a.y}),nr={x:-d.y,y:d.x},h=6*k,gap=4*k,out="";
+    for(var i=0;i<n;i++){var o=(i-(n-1)/2)*gap,c={x:m.x+d.x*o,y:m.y+d.y*o};
+      out+='<line x1="'+(c.x-nr.x*h).toFixed(1)+'" y1="'+(c.y-nr.y*h).toFixed(1)+'" x2="'+(c.x+nr.x*h).toFixed(1)+'" y2="'+(c.y+nr.y*h).toFixed(1)+'"'+st(color,1.8)+'/>';}
+    return out;
+  }
+  // 角平分線：在頂點 V 畫角弧，並在兩半各畫 n 條記號
+  function angleArc(Vt,P1,P2,n,color){
+    var c=scr(Vt),a=scr(P1),b=scr(P2);
+    var u=G.unit({x:a.x-c.x,y:a.y-c.y}),w=G.unit({x:b.x-c.x,y:b.y-c.y});
+    var minSide=Math.min(Math.hypot(a.x-c.x,a.y-c.y),Math.hypot(b.x-c.x,b.y-c.y));
+    var r=Math.min(26*k,0.35*minSide);
+    var t1=Math.atan2(u.y,u.x),delta=Math.atan2(G.cross(u,w),G.dot(u,w));
+    var e1={x:c.x+u.x*r,y:c.y+u.y*r},e2={x:c.x+w.x*r,y:c.y+w.y*r};
+    var out='<path d="M'+e1.x.toFixed(1)+' '+e1.y.toFixed(1)+' A'+r.toFixed(1)+' '+r.toFixed(1)+' 0 0 '+(delta>0?1:0)+' '+e2.x.toFixed(1)+' '+e2.y.toFixed(1)+'"'+st(color,1.6)+'/>';
+    [0.25,0.75].forEach(function(fr){
+      for(var i=0;i<n;i++){
+        var th=t1+delta*fr+(i-(n-1)/2)*(0.09*Math.sign(delta||1)),dx=Math.cos(th),dy=Math.sin(th),h=4.5*k;
+        out+='<line x1="'+(c.x+dx*(r-h)).toFixed(1)+'" y1="'+(c.y+dy*(r-h)).toFixed(1)+'" x2="'+(c.x+dx*(r+h)).toFixed(1)+'" y2="'+(c.y+dy*(r+h)).toFixed(1)+'"'+st(color,1.4)+'/>';
+      }
+    });
+    return out;
+  }
+  // 各心的標記形狀（色盲友善：形狀 + 字母）
+  function marker(type,p,size){
+    var c=scr(p),m=(size||7)*k,col=COL[type],sw=(2*k).toFixed(1),s,pulse="";
+    if(type==="O") s='<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="'+m.toFixed(1)+'"';
+    else if(type==="I") s='<rect x="'+(c.x-m*0.9).toFixed(1)+'" y="'+(c.y-m*0.9).toFixed(1)+'" width="'+(m*1.8).toFixed(1)+'" height="'+(m*1.8).toFixed(1)+'"';
+    else if(type==="G") s='<polygon points="'+c.x.toFixed(1)+','+(c.y-m*1.15).toFixed(1)+' '+(c.x+m).toFixed(1)+','+(c.y+m*0.7).toFixed(1)+' '+(c.x-m).toFixed(1)+','+(c.y+m*0.7).toFixed(1)+'"';
+    else s='<polygon points="'+c.x.toFixed(1)+','+(c.y-m*1.2).toFixed(1)+' '+(c.x+m*1.05).toFixed(1)+','+c.y.toFixed(1)+' '+c.x.toFixed(1)+','+(c.y+m*1.2).toFixed(1)+' '+(c.x-m*1.05).toFixed(1)+','+c.y.toFixed(1)+'"';
+    if(state.mode===type || (state.mode==="ALL" && type!=="I")){
+      pulse='<circle class="pulse-ring" cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="'+(m*2.2).toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+(1.4*k).toFixed(1)+'"/>';
+    }
+    return pulse+s+' fill="'+col+'" stroke="#fff" stroke-width="'+sw+'"/>';
+  }
+  var LABEL_OFF={O:[13,-13,"start"],I:[-13,-13,"end"],G:[13,15,"start"],H:[-13,15,"end"]};
+  function centreLabel(type,p,str){var o=LABEL_OFF[type];return text(p,str||type,COL[type],o[0],o[1],17,o[2]);}
+  function inView(p){return p.x>=VIEW.xmin&&p.x<=VIEW.xmax&&p.y>=VIEW.ymin&&p.y<=VIEW.ymax;}
+
+  /* ---------- 方格 ---------- */
+  function drawGrid(){
+    if(!state.grid){LG.innerHTML="";return;}
+    var out="",x,y;
+    for(x=Math.ceil(VIEW.xmin);x<=VIEW.xmax;x++){
+      out+=line(P(x,VIEW.ymin),P(x,VIEW.ymax),' stroke="'+(x===0?"#9fb0c4":"#e3e9f1")+'" stroke-width="'+(x===0?1.6:1)+'"');
+    }
+    for(y=Math.ceil(VIEW.ymin);y<=VIEW.ymax;y++){
+      out+=line(P(VIEW.xmin,y),P(VIEW.xmax,y),' stroke="'+(y===0?"#9fb0c4":"#e3e9f1")+'" stroke-width="'+(y===0?1.6:1)+'"');
+    }
+    var fs=(11*Math.min(k,1.6)).toFixed(1);
+    for(x=Math.ceil(VIEW.xmin);x<VIEW.xmax;x+=2){ if(x!==0) out+='<text x="'+(sx(P(x,0))).toFixed(1)+'" y="'+(sy(P(0,0))+12*Math.min(k,1.6)).toFixed(1)+'" font-size="'+fs+'" fill="#8a9bb0" text-anchor="middle">'+x+'</text>'; }
+    for(y=Math.ceil(VIEW.ymin);y<VIEW.ymax;y+=2){ if(y!==0) out+='<text x="'+(sx(P(0,0))-5).toFixed(1)+'" y="'+(sy(P(0,y))+4).toFixed(1)+'" font-size="'+fs+'" fill="#8a9bb0" text-anchor="end">'+y+'</text>'; }
+    out+='<text x="'+(sx(P(0,0))-5).toFixed(1)+'" y="'+(sy(P(0,0))+12*Math.min(k,1.6)).toFixed(1)+'" font-size="'+fs+'" fill="#8a9bb0" text-anchor="end">0</text>';
+    LG.innerHTML=out;
+  }
+
+  /* ---------- 頂點把手（保持 DOM 不變，方便鍵盤焦點） ---------- */
+  var handles=[];
+  function buildHandles(){
+    LH.innerHTML="";
+    ["A","B","C"].forEach(function(nm,i){
+      var g=document.createElementNS("http://www.w3.org/2000/svg","g");
+      g.setAttribute("class","handle"); g.setAttribute("tabindex","0"); g.setAttribute("role","button");
+      g.setAttribute("aria-roledescription","可拖動頂點");
+      g.innerHTML='<circle class="hit" fill="transparent"/><circle class="ring"/><circle class="dot" fill="#1a2332" stroke="#fff"/>';
+      g.dataset.idx=i; LH.appendChild(g); handles.push(g);
+      g.addEventListener("pointerdown",function(e){
+        e.preventDefault(); state.drag=i;
+        try{svg.setPointerCapture(e.pointerId);}catch(err){}
+        g.focus({preventScroll:true}); g.style.cursor="grabbing";
+      });
+      g.addEventListener("keydown",function(e){
+        var step=e.shiftKey?1:(state.snap?0.5:0.1),d=null;
+        if(e.key==="ArrowLeft") d=[-step,0]; else if(e.key==="ArrowRight") d=[step,0];
+        else if(e.key==="ArrowUp") d=[0,step]; else if(e.key==="ArrowDown") d=[0,-step];
+        if(!d) return;
+        e.preventDefault();
+        var p=state.pts[i]; setPoint(i,P(p.x+d[0],p.y+d[1])); update();
+      });
+    });
+  }
+  function updateHandles(){
+    state.pts.forEach(function(p,i){
+      var g=handles[i],c=scr(p),cs=g.querySelectorAll("circle");
+      cs.forEach(function(el){el.setAttribute("cx",c.x.toFixed(1));el.setAttribute("cy",c.y.toFixed(1));});
+      cs[0].setAttribute("r",(24*k).toFixed(1));
+      cs[1].setAttribute("r",(13*k).toFixed(1)); cs[1].setAttribute("stroke-width",(3*k).toFixed(1));
+      cs[2].setAttribute("r",(7.5*k).toFixed(1)); cs[2].setAttribute("stroke-width",(2*k).toFixed(1));
+      g.setAttribute("aria-label","頂點 "+"ABC"[i]+"，坐標 ("+n1(p.x)+", "+n1(p.y)+")。用方向鍵移動。");
+    });
+  }
+  function clampSnap(p){
+    var x=Math.max(VIEW.xmin+0.4,Math.min(VIEW.xmax-0.4,p.x)), y=Math.max(VIEW.ymin+0.4,Math.min(VIEW.ymax-0.4,p.y));
+    if(state.snap){x=Math.round(x*2)/2;y=Math.round(y*2)/2;}
+    else {x=Math.round(x*100)/100;y=Math.round(y*100)/100;}
+    return P(x,y);
+  }
+  function setPoint(i,p){state.pts[i]=clampSnap(p);}
+  function toWorld(e){
+    var pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+    var m=svg.getScreenCTM(); if(!m) return null;
+    var v=pt.matrixTransform(m.inverse());
+    return P(v.x/S+VIEW.xmin, VIEW.ymax-v.y/S);
+  }
+  svg.addEventListener("pointermove",function(e){
+    if(state.drag<0) return;
+    var w=toWorld(e); if(!w) return;
+    setPoint(state.drag,w); update();
+  });
+  function endDrag(){ if(state.drag>=0){handles[state.drag].style.cursor="";state.drag=-1; update();} }
+  svg.addEventListener("pointerup",endDrag);
+  svg.addEventListener("pointercancel",endDrag);
+  svg.addEventListener("lostpointercapture",endDrag);
+
+  /* ---------- 文字說明 ---------- */
+  var TYPE_ZH={acute:"銳角",right:"直角",obtuse:"鈍角"};
+  var CONCEPT={
+    O:{title:"● 外心 O（circumcentre）",def:"三邊的<b>垂直平分線</b>（perpendicular bisectors）的交點。",
+       prop:"OA = OB = OC：外心與三個<b>頂點</b>等距，以 O 為圓心、OA 為半徑可畫出<b>外接圓</b>（circumcircle）。",
+       pos:["形內","斜邊的中點","形外"]},
+    I:{title:"■ 內心 I（incentre）",def:"三個內角的<b>角平分線</b>（angle bisectors）的交點。",
+       prop:"內心與三條<b>邊</b>的垂直距離相等，以 I 為圓心可畫出<b>內切圓</b>（incircle），半徑 r。",
+       pos:["形內","形內","形內"]},
+    G:{title:"▲ 形心（重心）G（centroid）",def:"三條<b>中線</b>（medians）的交點；中線連接頂點與對邊的中點。",
+       prop:"形心把每條中線分成 <b>2 : 1</b>（由頂點量起），即 AG : GD = 2 : 1。<br>坐標：G = ( (x₁+x₂+x₃)/3 , (y₁+y₂+y₃)/3 )。",
+       pos:["形內","形內","形內"]},
+    H:{title:"◆ 垂心 H（orthocentre）",def:"三條<b>高線</b>（altitudes）的交點；高線由頂點垂直於對邊（或對邊的延線）。",
+       prop:"AH ⊥ BC，BH ⊥ CA，CH ⊥ AB。鈍角三角形須把邊（灰色虛線）及高線延長才相交。",
+       pos:["形內","直角頂點","形外"]}
+  };
+  function locText(type,r){
+    var L=r.loc[type];
+    if(type==="O"&&r.type==="right"){var hyp="BC CA AB".split(" ")[r.maxIdx];return "斜邊 "+hyp+" 的中點";}
+    if(type==="H"&&r.type==="right") return "直角頂點 "+r.maxName;
+    if(r.equilateral) return "三角形內（四心重合）";
+    if(L==="inside") return "三角形內";
+    if(L==="boundary") return "三角形的邊上";
+    if(L==="outside") return "三角形外"+(inView(r[type])?"":"（畫面外）");
+    return "—";
+  }
+
+  function renderStatus(r){
+    var el=document.getElementById("status");
+    if(r.degenerate){
+      el.className="status warn";
+      el.innerHTML="<strong>⚠ 三點幾乎共線（或兩點太接近），未能構成三角形。</strong> 請把頂點拖開，或按上面的預設按鈕。";
+      return;
+    }
+    el.className="status";
+    var extra=r.equilateral?"・等邊":(r.isosceles?"・等腰":"");
+    var head="<strong>"+TYPE_ZH[r.type]+"三角形"+extra+"</strong>（最大角 ∠"+r.maxName+" ≈ "+n1(r.maxAngle)+"°"+(r.type==="right"?"，視作 90°":"")+"）";
+    var locs=["O","I","G","H"].map(function(t){return '<span class="loc '+t+'"><b>'+NAME[t]+" "+t+"</b>："+locText(t,r)+"</span>";}).join("");
+    el.innerHTML=head+"<br>"+locs+(r.equilateral?'<br><span>★ 等邊三角形：外心、內心、形心、垂心<b>四心重合</b>。</span>':"");
+  }
+
+  function renderConcept(r){
+    var el=document.getElementById("concept"),m=state.mode;
+    el.className="concept "+m;
+    if(m==="ALL"){
+      el.innerHTML='<h3>全部顯示：四心一覽</h3><dl>'+
+        '<dt>由哪三條線相交</dt><dd>外心 ← 垂直平分線；內心 ← 角平分線；形心（重心）← 中線；垂心 ← 高線。</dd>'+
+        '<dt>一定在形內</dt><dd>內心、形心（重心）。</dd>'+
+        '<dt>可能在形外</dt><dd>外心、垂心（鈍角三角形）。直角三角形：外心在斜邊中點，垂心在直角頂點。</dd>'+
+        '<dt>延伸：歐拉線（Euler line）</dt><dd>外心 O、形心 G、垂心 H 共線，且 OG : GH = 1 : 2。勾選「歐拉線」觀察。</dd>'+
+        '<dt>特別情況</dt><dd>等邊三角形：四心重合；等腰三角形：四心都在對稱軸上。</dd></dl>';
+      return;
+    }
+    var c=CONCEPT[m],cur=r.degenerate?"":r.type;
+    function row(t,i){return '<span'+(cur===t?' style="font-weight:700"':'')+'>'+(cur===t?"▶ ":"")+TYPE_ZH[t]+"三角形</span><span"+(cur===t?' style="font-weight:700"':'')+'>'+c.pos[i]+"</span>";}
+    el.innerHTML='<h3 style="color:'+COL[m]+'">'+c.title+'</h3><dl><dt>定義（由哪三條線相交）</dt><dd>'+c.def+'</dd><dt>重要性質</dt><dd>'+c.prop+
+      '</dd><dt>位置</dt><dd><div class="pos">'+row("acute",0)+row("right",1)+row("obtuse",2)+'</div></dd></dl>';
+  }
+
+  function tr(a,b,cls){return "<tr><td>"+a+"</td><td"+(cls?' class="'+cls+'"':"")+">"+b+"</td></tr>";}
+  function pt(p){return "("+n2(p.x)+", "+n2(p.y)+")";}
+  function renderReadout(r){
+    var el=document.getElementById("readout"),m=state.mode,h="";
+    if(r.degenerate){el.innerHTML="<b>量度</b><p class='note'>未能構成三角形，暫不計算四心。</p>";return;}
+    h+="<b>即時量度</b>（單位：方格）<table>";
+    if(m==="O"){
+      h+=tr("外心 O",pt(r.O))+tr("OA",n2(r.circDist[0]))+tr("OB",n2(r.circDist[1]))+tr("OC",n2(r.circDist[2]))+
+         tr("∴ OA = OB = OC = R（外接圓半徑）",n2(r.R),"eq")+"</table>";
+      h+="<p class='note'>虛線：三條垂直平分線（直角記號 + 中點等長記號）；O 為圓心畫外接圓。</p>";
+    } else if(m==="I"){
+      h+=tr("內心 I",pt(r.I))+tr("I 到 BC 的距離",n2(r.inDist[0]))+tr("I 到 CA 的距離",n2(r.inDist[1]))+tr("I 到 AB 的距離",n2(r.inDist[2]))+
+         tr("∴ 三個距離相等 = r（內切圓半徑）",n2(r.inr),"eq")+
+         tr("∠BAI = ∠CAI",n1(r.angles[0]/2)+"°")+tr("∠CBI = ∠ABI",n1(r.angles[1]/2)+"°")+tr("∠ACI = ∠BCI",n1(r.angles[2]/2)+"°")+"</table>";
+      h+="<p class='note'>點劃線：三條角平分線；細線為 I 到三邊的垂直距離。I = (aA + bB + cC)/(a + b + c)，a、b、c 為對邊長。</p>";
+    } else if(m==="G"){
+      var nm=[["A","D"],["B","E"],["C","F"]];
+      h+=tr("形心 G",pt(r.G));
+      r.medRatio.forEach(function(q,i){h+=tr(nm[i][0]+"G : G"+nm[i][1],n2(q.vg)+" : "+n2(q.gd)+" = <span class='eq'>"+n2(q.ratio)+" : 1</span>");});
+      h+="</table><p class='note'>D、E、F 分別是 BC、CA、AB 的中點。G = ( ("+f(r.A.x)+" + "+f(r.B.x)+" + "+f(r.C.x)+")/3 , ("+f(r.A.y)+" + "+f(r.B.y)+" + "+f(r.C.y)+")/3 ) = "+pt(r.G)+"</p>";
+    } else if(m==="H"){
+      h+=tr("垂心 H",pt(r.H));
+      var feetOut=r.altFoot.filter(function(q){return q.t< -1e-6||q.t>1+1e-6;}).length;
+      h+=tr("AD ⊥ BC，BE ⊥ CA，CF ⊥ AB","90°")+tr("高 AD",n2(G.dist(r.A,r.altFoot[0].pt)))+tr("高 BE",n2(G.dist(r.B,r.altFoot[1].pt)))+tr("高 CF",n2(G.dist(r.C,r.altFoot[2].pt)))+"</table>";
+      h+="<p class='note'>D、E、F 為垂足。"+(feetOut?"有 "+feetOut+" 個垂足落在邊的<b>延線</b>上（灰色虛線），高線亦要延長（虛線）才交於 H。":"三個垂足都在邊上。")+"</p>";
+    } else {
+      h+=tr("● 外心 O",pt(r.O))+tr("■ 內心 I",pt(r.I))+tr("▲ 形心 G",pt(r.G))+tr("◆ 垂心 H",pt(r.H));
+      if(state.euler){
+        if(r.OH<1e-6) h+=tr("歐拉線","四心重合，沒有唯一直線");
+        else h+=tr("OG",n2(r.OG))+tr("GH",n2(r.GH))+tr("OG : GH","1 : "+n2(r.GH/r.OG),"eq");
+      }
+      h+="</table><p class='note'>"+(state.euler&&r.OH<1e-6?"等邊三角形：O、G、H 重合，歐拉線不唯一。":state.euler?"延伸：O、G、H 在同一直線（歐拉線）上，OG : GH = 1 : 2。":"可勾選「歐拉線（延伸）」觀察 O、G、H 共線。")+"</p>";
+    }
+    el.innerHTML=h;
+  }
+
+  function renderLegend(){
+    var sh={O:'<circle cx="9" cy="9" r="6" fill="'+COL.O+'"/>',I:'<rect x="3.5" y="3.5" width="11" height="11" fill="'+COL.I+'"/>',
+      G:'<polygon points="9,2 16,15 2,15" fill="'+COL.G+'"/>',H:'<polygon points="9,1 17,9 9,17 1,9" fill="'+COL.H+'"/>'};
+    var ln={O:'<line x1="0" y1="9" x2="34" y2="9" stroke="'+COL.O+'" stroke-width="2.4" stroke-dasharray="9 5"/>',
+      I:'<line x1="0" y1="9" x2="34" y2="9" stroke="'+COL.I+'" stroke-width="2.4" stroke-dasharray="11 4 2 4"/>',
+      G:'<line x1="0" y1="9" x2="34" y2="9" stroke="'+COL.G+'" stroke-width="2.6"/>',
+      H:'<line x1="0" y1="9" x2="34" y2="9" stroke="'+COL.H+'" stroke-width="2.6" stroke-dasharray="2 4" stroke-linecap="round"/>'};
+    var lineName={O:"垂直平分線",I:"角平分線",G:"中線",H:"高線"};
+    document.getElementById("legend").innerHTML=["O","I","G","H"].map(function(t){
+      return '<span><svg width="18" height="18" aria-hidden="true">'+sh[t]+'</svg><svg width="34" height="18" aria-hidden="true">'+ln[t]+'</svg>'+NAME[t]+" "+t+"："+lineName[t]+"</span>";
+    }).join("")+'<span><svg width="34" height="18" aria-hidden="true"><line x1="0" y1="9" x2="34" y2="9" stroke="#7b8796" stroke-width="1.8" stroke-dasharray="5 4"/></svg>延長線</span>';
+  }
+
+  /* ---------- 繪圖 ---------- */
+  var SIDES=[[1,2],[2,0],[0,1]];            // 對邊：A→BC、B→CA、C→AB
+  var FOOTNAME=["D","E","F"];
+  function draw(r){
+    var A=r.A,B=r.B,C=r.C,V=[A,B,C],out="",m=state.mode;
+    var a=scr(A),b=scr(B),c=scr(C);
+    // 三角形
+    out+='<polygon points="'+[a,b,c].map(function(p){return p.x.toFixed(1)+","+p.y.toFixed(1);}).join(" ")+'" fill="rgba(43,108,176,0.07)"'+st(COL.tri,2.6,null,' stroke-linejoin="round"')+'/>';
+    if(!r.degenerate){
+      if(m==="O"){
+        out+=circle(r.O,r.R,st(COL.O,2));
+        SIDES.forEach(function(sd,i){
+          var p=V[sd[0]],q=V[sd[1]],M=r.mid[i],d=G.sub(q,p),n=G.perp(d);
+          if(G.dot(n,G.sub(V[i],M))<0) n=G.mul(n,-1);
+          out+=infLine(M,n,st(COL.O,2.2,[10,5]));
+          out+=rightMark(M,d,n,COL.O)+ticks(p,M,i+1,COL.O)+ticks(M,q,i+1,COL.O);
+        });
+        V.forEach(function(p){out+=line(r.O,p,st(COL.O,1.4,[3,4]));});
+        V.forEach(function(p,i){out+=text(G.mid(r.O,p),["OA","OB","OC"][i]+"="+n2(r.circDist[i]),COL.O,0,-10,12);});
+        out+=marker("O",r.O)+centreLabel("O",r.O);
+      } else if(m==="I"){
+        out+=circle(r.I,r.inr,st(COL.I,2));
+        V.forEach(function(p,i){
+          out+=line(p,r.bisFoot[i],st(COL.I,2.2,[11,4,2,4]));
+          var sd=SIDES[i]; out+=angleArc(p,V[sd[0]],V[sd[1]],i+1,COL.I);
+        });
+        r.inFoot.forEach(function(T,i){
+          var sd=SIDES[i],d=G.sub(V[sd[1]],V[sd[0]]);
+          out+=line(r.I,T,st(COL.I,1.5));
+          out+=rightMark(T,d,G.sub(r.I,T),COL.I);
+          out+=text(G.mid(r.I,T),"r="+n2(r.inDist[i]),COL.I,0,0,12);
+        });
+        out+=marker("I",r.I)+centreLabel("I",r.I);
+      } else if(m==="G"){
+        r.mid.forEach(function(M,i){
+          var sd=SIDES[i];
+          out+=line(V[i],M,st(COL.G,2.6));
+          out+=ticks(V[sd[0]],M,i+1,COL.G)+ticks(M,V[sd[1]],i+1,COL.G);
+          out+='<circle cx="'+sx(M).toFixed(1)+'" cy="'+sy(M).toFixed(1)+'" r="'+(4*k).toFixed(1)+'" fill="'+COL.G+'"/>';
+          var off=G.unit(G.sub(M,r.G));
+          out+=text(G.add(M,G.mul(off,0.55)),FOOTNAME[i],COL.G,0,0,15);
+        });
+        out+=marker("G",r.G)+centreLabel("G",r.G);
+      } else if(m==="H"){
+        r.altFoot.forEach(function(ft,i){
+          var sd=SIDES[i],p=V[sd[0]],q=V[sd[1]],Fp=ft.pt,vx=V[i];
+          // 垂足落在延線上：延長對邊（灰色虛線）
+          if(ft.t<0) out+=line(p,Fp,st(COL.ext,1.8,[5,4]));
+          else if(ft.t>1) out+=line(q,Fp,st(COL.ext,1.8,[5,4]));
+          out+=line(vx,Fp,st(COL.H,2.6,[2,5]));
+          // 高線延長至 H
+          var dvf=G.sub(Fp,vx),L2=G.dot(dvf,dvf);
+          if(L2>1e-12){
+            var s=G.dot(G.sub(r.H,vx),dvf)/L2;
+            if(s<0) out+=line(vx,r.H,st(COL.ext,1.8,[5,4]));
+            else if(s>1) out+=line(Fp,r.H,st(COL.ext,1.8,[5,4]));
+          }
+          var d=G.sub(q,p); if(ft.t>0.5) d=G.mul(d,-1);       // 直角記號朝向邊的內側
+          if(G.dist(vx,Fp)>1e-6) out+=rightMark(Fp,d,G.sub(vx,Fp),COL.H);
+          out+='<circle cx="'+sx(Fp).toFixed(1)+'" cy="'+sy(Fp).toFixed(1)+'" r="'+(3.5*k).toFixed(1)+'" fill="'+COL.H+'"/>';
+          if(G.dist(Fp,V[sd[0]])>0.3&&G.dist(Fp,V[sd[1]])>0.3){
+            var nn=G.unit(G.perp(d)); if(G.dot(nn,G.sub(vx,Fp))>0) nn=G.mul(nn,-1);
+            out+=text(G.add(Fp,G.mul(nn,0.45)),FOOTNAME[i],COL.H,0,0,15);
+          }
+        });
+        out+=marker("H",r.H)+centreLabel("H",r.H);
+      } else {
+        out+=circle(r.O,r.R,st(COL.O,1.6,[6,5],' stroke-opacity="0.55"'));
+        out+=circle(r.I,r.inr,st(COL.I,1.6,[6,5],' stroke-opacity="0.55"'));
+        if(state.euler&&r.OH>1e-6){
+          out+=infLine(r.O,G.sub(r.H,r.O),st(COL.E,2.2,[14,6]));
+          var eu=G.add(r.H,G.mul(G.unit(G.sub(r.H,r.O)),0.9));
+        }
+        if(r.equilateral){
+          out+=marker("O",r.O,9)+marker("I",r.I,7)+marker("G",r.G,5.5)+marker("H",r.H,4);
+          out+=text(r.O,"O = I = G = H（重合）","#2d3a4f",14,-16,15,"start");
+        } else {
+          ["O","I","G","H"].forEach(function(t){out+=marker(t,r[t]);});
+          ["O","I","G","H"].forEach(function(t){out+=centreLabel(t,r[t]);});
+        }
+        if(state.euler&&r.OH>1e-6&&inView(eu)) out+=text(eu,"歐拉線","#333",0,-14,13);
+      }
+      // 只有在「全部顯示」以外亦可疊加歐拉線
+      if(m!=="ALL"&&state.euler&&r.OH>1e-6){
+        out+=infLine(r.O,G.sub(r.H,r.O),st(COL.E,1.6,[14,6],' stroke-opacity="0.6"'));
+      }
+    }
+    // 頂點標籤
+    var cen=G.centroid(A,B,C);
+    V.forEach(function(p,i){
+      var d=G.unit(G.sub(p,cen)); if(G.len(d)===0) d=P(0,1);
+      var lp=G.add(p,G.mul(d,0.62));
+      out+=text(lp,"ABC"[i],COL.tri,0,0,19);
+      if(state.coord) out+=text(G.add(p,G.mul(d,1.25)),"("+n1(p.x)+", "+n1(p.y)+")","#44546a",0,0,12.5);
+    });
+    LD.innerHTML=out;
+  }
+
+  var last=null;
+  function update(){
+    var r=G.analyze(state.pts[0],state.pts[1],state.pts[2]);
+    last=r;
+    draw(r); updateHandles(); renderStatus(r); renderConcept(r); renderReadout(r);
+  }
+  function computeK(){
+    var w=svg.getBoundingClientRect().width||800;
+    var nk=Math.max(1,Math.min(2.3,700/w));
+    if(Math.abs(nk-k)>0.02){k=nk; drawGrid(); update();}
+  }
+
+  /* ---------- 控制項 ---------- */
+  var tabs=[].slice.call(document.querySelectorAll(".tab"));
+  function setMode(m,focus){
+    state.mode=m;
+    var lab=document.getElementById("lab"); if(lab) lab.setAttribute("data-mode",m);
+    tabs.forEach(function(t){var on=t.dataset.mode===m;t.setAttribute("aria-selected",on?"true":"false");t.tabIndex=on?0:-1;if(on&&focus)t.focus();});
+    update();
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener("click",function(){setMode(t.dataset.mode);});
+    t.addEventListener("keydown",function(e){
+      var j=null;
+      if(e.key==="ArrowRight") j=(i+1)%tabs.length; else if(e.key==="ArrowLeft") j=(i-1+tabs.length)%tabs.length;
+      else if(e.key==="Home") j=0; else if(e.key==="End") j=tabs.length-1;
+      if(j!==null){e.preventDefault();setMode(tabs[j].dataset.mode,true);}
+    });
+  });
+  document.querySelectorAll(".preset").forEach(function(b){
+    b.addEventListener("click",function(){
+      state.pts=PRESETS[b.dataset.preset].map(function(p){return P(p.x,p.y);});
+      document.querySelectorAll(".preset").forEach(function(x){x.classList.toggle("active",x===b);x.setAttribute("aria-pressed",x===b?"true":"false");});
+      update();
+    });
+  });
+  function bindToggle(id,key,cb){var el=document.getElementById(id);el.checked=state[key];el.addEventListener("change",function(){state[key]=el.checked;if(cb)cb();update();});}
+  bindToggle("optGrid","grid",drawGrid);
+  bindToggle("optSnap","snap",function(){state.pts=state.pts.map(clampSnap);});
+  bindToggle("optCoord","coord");
+  bindToggle("optEuler","euler");
+
+  // 嵌入 iframe（例如 Google Sites）時顯示「在新分頁開啟」
+  try{ if(window.self!==window.top){var nt=document.getElementById("newTab");nt.href=location.href.split("#")[0];nt.classList.add("show");} }catch(e){}
+
+  buildHandles(); renderLegend(); drawGrid(); update(); computeK();
+  if(window.ResizeObserver) new ResizeObserver(computeK).observe(svg); else window.addEventListener("resize",computeK);
+
+  /* 測試／除錯用（不影響使用） */
+  window.__tc={state:state,setMode:setMode,update:update,last:function(){return last;},
+    setPoints:function(arr){state.pts=arr.map(function(p){return P(p[0],p[1]);});update();},
+    preset:function(n){document.querySelector('.preset[data-preset="'+n+'"]').click();}};
+
+  /* ---------- 自我檢測 ---------- */
+  var QUIZ=[
+    {q:"Q1. 作圖時畫出三角形的三條<b>高線</b>（由頂點垂直於對邊的直線），它們的交點是：",
+     opts:["外心","內心","形心（重心）","垂心"],ans:3,
+     exp:"三條高線（altitudes）相交於<b>垂心</b>。口訣「垂高」。"},
+    {q:"Q2. 點 P 滿足 PA = PB = PC（與 △ABC 三個<b>頂點</b>距離相等）。P 是 △ABC 的：",
+     opts:["外心","內心","形心（重心）","垂心"],ans:0,
+     exp:"與三個頂點等距的點在三邊的垂直平分線上，即<b>外心</b>；它是外接圓的圓心。"},
+    {q:"Q3. 點 Q 與 △ABC 三條<b>邊</b>的垂直距離相等。Q 是 △ABC 的：",
+     opts:["外心","內心","形心（重心）","垂心"],ans:1,
+     exp:"與角的兩邊等距的點在角平分線上；與三邊等距即三條角平分線的交點——<b>內心</b>（內切圓圓心）。"},
+    {q:"Q4. 某點把三角形的每一條<b>中線</b>都分成 2 : 1（由頂點量起）。這點是：",
+     opts:["外心","內心","形心（重心）","垂心"],ans:2,
+     exp:"三條中線交於<b>形心（重心）</b>G，且 AG : GD = 2 : 1。"},
+    {q:"Q5. 在<b>鈍角</b>三角形中，哪兩個心一定在三角形<b>外</b>？",
+     opts:["外心和垂心","內心和形心（重心）","外心和內心","垂心和形心（重心）"],ans:0,
+     exp:"鈍角三角形的<b>外心</b>和<b>垂心</b>在形外（可選「鈍角」預設觀察）；內心和形心永遠在形內。"},
+    {q:"Q6. △ABC 中，∠C = 90°。以下哪項正確？",
+     opts:["垂心在 C，外心在斜邊 AB 的中點","垂心在 AB 的中點，外心在 C","垂心和外心都在三角形外","四心必定重合"],ans:0,
+     exp:"直角三角形中，兩條直角邊本身就是高線，所以<b>垂心是直角頂點 C</b>；斜邊是外接圓直徑，所以<b>外心是斜邊中點</b>。"},
+    {q:"Q7. △ABC 的頂點為 A(1, 2)、B(7, 4)、C(4, 9)。求形心（重心）G 的坐標。",
+     num:[{label:"G 的 x 坐標 =",ans:4},{label:"G 的 y 坐標 =",ans:5}],
+     exp:"G = ( (1 + 7 + 4)/3 , (2 + 4 + 9)/3 ) = (12/3 , 15/3) = <b>(4, 5)</b>。"},
+    {q:"Q8. △ABC 中，AD 是中線，G 是形心（重心）。若 AD = 12 cm，求 AG。",
+     num:[{label:"AG =",ans:8,unit:"cm"}],
+     exp:"AG : GD = 2 : 1，所以 AG = 12 × 2/3 = <b>8 cm</b>（GD = 4 cm）。"}
+  ];
+  var results={};
+  var box=document.getElementById("quizBox");
+  function buildQuiz(){
+    results={};
+    box.innerHTML=QUIZ.map(function(it,i){
+      var body;
+      if(it.opts){
+        body='<div class="opts" role="radiogroup" aria-label="Q'+(i+1)+' 選項">'+it.opts.map(function(o,j){
+          return '<label class="opt"><input type="radio" name="q'+i+'" value="'+j+'"> <span>'+"ABCD"[j]+'. '+o+'</span></label>';}).join("")+'</div>';
+      } else {
+        body='<div class="numrow">'+it.num.map(function(n,j){
+          return '<label>'+n.label+' <input type="text" inputmode="decimal" autocomplete="off" id="q'+i+'n'+j+'" aria-label="'+n.label.replace(/=/,"")+'"> '+(n.unit||"")+'</label>';}).join("")+'</div>';
+      }
+      return '<div class="q" data-i="'+i+'"><h3>'+it.q+'</h3>'+body+'<button type="button" class="check-btn" data-i="'+i+'">檢查答案</button><div class="feedback" id="fb'+i+'" aria-live="polite"></div></div>';
+    }).join("");
+    box.querySelectorAll(".check-btn").forEach(function(b){b.addEventListener("click",function(){check(+b.dataset.i);});});
+    box.querySelectorAll(".numrow input").forEach(function(inp){inp.addEventListener("keydown",function(e){if(e.key==="Enter"){check(+inp.id.match(/^q(\d+)/)[1]);}});});
+    renderScore();
+  }
+  function parseNum(s){
+    s=String(s).trim().replace(/[，,]/g,".").replace(/\s+/g,"");
+    var fr=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+    if(fr) return parseFloat(fr[1])/parseFloat(fr[2]);
+    return s===""?NaN:Number(s);
+  }
+  function check(i){
+    var it=QUIZ[i],fb=document.getElementById("fb"+i),ok;
+    if(it.opts){
+      var picked=box.querySelector('input[name="q'+i+'"]:checked');
+      if(!picked){fb.className="feedback no";fb.innerHTML="請先選擇一個選項。";return;}
+      ok=(+picked.value===it.ans);
+      box.querySelectorAll('input[name="q'+i+'"]').forEach(function(inp){
+        var lab=inp.closest(".opt"); lab.classList.remove("right","wrong");
+        if(+inp.value===it.ans&&ok) lab.classList.add("right");
+        if(inp.checked&&!ok) lab.classList.add("wrong");
+      });
+    } else {
+      var vals=it.num.map(function(n,j){return parseNum(document.getElementById("q"+i+"n"+j).value);});
+      if(vals.some(function(v){return isNaN(v);})){fb.className="feedback no";fb.innerHTML="請在每個空格輸入一個數字。";return;}
+      ok=vals.every(function(v,j){return Math.abs(v-it.num[j].ans)<1e-6;});
+    }
+    results[i]=ok;
+    fb.className="feedback "+(ok?"ok":"no");
+    fb.innerHTML=(ok?"✓ 正確！":"✗ 未正確，再試一次。")+"<br>"+(ok?it.exp:"提示："+hint(i));
+    renderScore();
+  }
+  function hint(i){
+    return ["高線 = 由頂點垂直於對邊的線。口訣：外垂、內角、形中、垂高。",
+      "「與頂點等距」→ 想想哪個圓經過三個頂點？",
+      "「與邊等距」→ 想想哪個圓與三條邊相切？",
+      "中線連接頂點和對邊中點；哪個心與中線有關？",
+      "把上面互動圖切換到「鈍角」預設，再按「全部顯示」觀察。",
+      "按「直角」預設（∠C = 90°），分別看外心和垂心的位置。",
+      "形心坐標 = 三個頂點坐標的平均值：((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)。",
+      "AG : GD = 2 : 1，即 AG 佔整條中線的 2/3。"][i];
+  }
+  function renderScore(){
+    var n=Object.keys(results).filter(function(k){return results[k];}).length;
+    document.getElementById("score").textContent="目前答對："+n+" / "+QUIZ.length+"（只在本頁暫存，重新整理即清除）";
+  }
+  document.getElementById("quizReset").addEventListener("click",buildQuiz);
+  buildQuiz();
+})();
+</script>
+
+<script>
+(function(){
+  var tag=document.getElementById("modeTag");
+  var map={O:"O · 外心",I:"I · 內心",G:"G · 形心（重心）",H:"H · 垂心",ALL:"ALL · 四心"};
+  var lab=document.getElementById("lab");
+  function sync(){ if(tag&&lab) tag.textContent=map[lab.getAttribute("data-mode")]||""; }
+  var obs=new MutationObserver(sync); obs.observe(lab,{attributes:true,attributeFilter:["data-mode"]});
+  sync();
+})();
+</script>
+</body>
+</html>
